@@ -1,5 +1,6 @@
-from src.power import power_function
-from src.constants import SAMPLE_CONSTANT
+import readline  # provides line editing and history features for `input()`
+
+from src.shell import Shell
 
 
 def main() -> None:
@@ -8,13 +9,11 @@ def main() -> None:
     :return: Данная функция ничего не возвращает
     """
 
-    target, degree = map(int, input("Введите два числа разделенные пробелом: ").split(" "))
+    readline.set_auto_history(True)
 
-    result = power_function(target=target, power=degree)
+    shell = Shell()
+    shell.run()
 
-    print(result)
-
-    print(SAMPLE_CONSTANT)
 
 if __name__ == "__main__":
     main()
