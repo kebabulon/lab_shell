@@ -1,12 +1,6 @@
-import os
 import shlex
 
 from src.command import CommandEnv
-
-
-def prettify_path(path: str) -> str:
-    path = path.replace(os.path.expanduser('~'), '~', 1)
-    return path
 
 
 class Shell():
@@ -14,7 +8,7 @@ class Shell():
         self.env = CommandEnv()
 
     def get_prompt(self) -> str:
-        return f"<{self.env.cwd}> => "
+        return f"<{self.env.pretty_path(self.env.cwd)}> => "
 
     def execute(self, cmd: str) -> None:
         cmd_args = shlex.split(cmd)

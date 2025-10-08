@@ -22,6 +22,19 @@ class CommandEnv():
 
         print(self.commands)
 
+    def pretty_path(self, path: str) -> str:
+        path = path.replace(os.path.expanduser('~'), '~', 1)
+        return path
+
+    def get_path(self, path: str) -> str:
+        path = os.path.expanduser(path)
+
+        if os.path.isabs(path):
+            return path
+        else:
+            new_path = os.path.normpath(os.path.join(self.cwd, os.pardir))
+            return new_path
+
     def load_command(self, command_class: Command):
         self.commands[command_class.name] = command_class
 
