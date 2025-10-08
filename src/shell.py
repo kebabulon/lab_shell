@@ -58,7 +58,11 @@ class Shell():
             print("error")  # TODO: logging + actual printing
             return
 
-        command_function(cmd_args[1:])
+        try:
+            command_function(self.env.cwd, cmd_args[1:])
+        except Exception as e:
+            # TODO: loooog
+            print(f"{type(e).__name__} -> {str(e)}")
 
     def run(self) -> None:
         while cmd := input(self.get_prompt()):

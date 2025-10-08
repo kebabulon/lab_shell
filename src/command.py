@@ -1,10 +1,10 @@
 from collections.abc import Callable
 
-CommandType = Callable[[list[str]], None]
+CommandType = Callable[[str, list[str]], None]
 
 
 class Command:
-    def __init__(self, function: Callable[[list[str]], None], name: str, description: str = "", help: str = ""):
+    def __init__(self, function: CommandType, name: str, description: str = "", help: str = ""):
         self.function = function
 
         self.name = name
