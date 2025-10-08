@@ -20,17 +20,16 @@ def ls(env: CommandEnv, args: list[str]) -> None:
 
     dir_path = env.get_path(argv.dir)
 
+    # TODO: check if path is valid before listing
     listdir_itterator = os.listdir(dir_path)
 
     if not argv.l:
-        print(*listdir_itterator)  # TODO: logging lol
+        env.print(" ".join(listdir_itterator))
     else:
         for file in listdir_itterator:
-            file_stat = os.stat(file)
+            # TODO: this does not follow symlinks... probably good?
+            file_path = os.path.join(dir_path, file)
+            file_stat = os.stat(file_path)
             modification_time = datetime.utcfromtimestamp(file_stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S')
             # TODO: create array, then create a table string out of it with proper spacing
-            print(file_stat.st_size, modification_time, file)
-
-
-# print(ls)
-# print(type(ls))
+            env.print(f"{file_stat.st_size} {modification_time} {file}")

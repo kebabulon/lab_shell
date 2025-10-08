@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import logging
 
 import inspect
 import pkgutil
@@ -13,15 +14,17 @@ from src.commands import core, custom
 
 
 class CommandEnv():
-    def __init__(self, cwd: str = os.getcwd()):
+    def __init__(self, log_filename: str, cwd: str):
         self.commands: dict[str, Command] = {}
         self.cwd = cwd
+        self.command_output = ""
+
+        self.setup_logger(log_filename)
 
         self.load_commands_from_namespace(core)
         self.load_commands_from_namespace(custom)
 
-        print(self.commands)
-
+    # TODO: move this somewhere else
     def pretty_path(self, path: str) -> str:
         path = path.replace(os.path.expanduser('~'), '~', 1)
         return path
@@ -32,8 +35,40 @@ class CommandEnv():
         if os.path.isabs(path):
             return path
         else:
-            new_path = os.path.normpath(os.path.join(self.cwd, os.pardir))
+            new_path = os.path.normpath(os.path.join(self.cwd, path))
             return new_path
+
+    def print(self, message: str):
+        print(message)
+        self.command_output += message + '\n'
+
+    def setup_logger(self, log_filename: str):
+        self.logger = logging.getLogger(log_filename)
+        self.logger.setLevel(logging.INFO)
+
+        if not self.logger.hasHandlers():
+            file_handler = logging.FileHandler(
+                f"{log_filename}.log",
+                mode="a",
+                encoding="utf-8"
+            )
+            formatter = logging.Formatter(
+                "[{asctime}] {message}",
+                style="{",
+                datefmt="%Y-%m-%d %H:%M",
+            )
+            file_handler.setFormatter(formatter)
+
+            self.logger.addHandler(file_handler)
+
+    def log_result(self, message: str):
+        self.logger.info(message)
+
+    def log_and_print_error(self, message: str):
+        message = f"Error: {message}"
+        print(message)
+        self.command_output += message + '\n'
+        self.logger.error(message)
 
     def load_command(self, command_class: Command):
         self.commands[command_class.name] = command_class
