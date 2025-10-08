@@ -1,7 +1,7 @@
-import os
-
 from argparse import ArgumentParser
-from src.command import command
+from src.command import command, CommandEnv
+
+import os
 
 
 @command(
@@ -11,14 +11,14 @@ from src.command import command
         -l - list files in table format
     """
 )
-def ls(cwd: str, args: list[str]) -> None:
+def ls(env: CommandEnv, args: list[str]) -> None:
     parser = ArgumentParser(exit_on_error=False)
-    parser.add_argument('filename', nargs='?', default=cwd)
+    parser.add_argument('dir', nargs='?', default=env.cwd)
     parser.add_argument('-l', action='store_true')
     argv = parser.parse_args(args)
 
     if not argv.l:
-        print(*os.listdir(argv.filename))
+        print(*os.listdir(argv.dir))
 
 
 # print(ls)

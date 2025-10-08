@@ -1,6 +1,41 @@
-from collections.abc import Callable
+from __future__ import annotations
 
-CommandType = Callable[[str, list[str]], None]
+import os
+
+import inspect
+import pkgutil
+import importlib
+
+from collections.abc import Callable
+from types import ModuleType
+
+from src.commands import core, custom
+
+
+class CommandEnv():
+    def __init__(self, cwd: str = os.getcwd()):
+        self.commands: dict[str, Command] = {}
+        self.cwd = cwd
+
+        self.load_commands_from_namespace(core)
+        self.load_commands_from_namespace(custom)
+
+        print(self.commands)
+
+    def load_command(self, command_class: Command):
+        self.commands[command_class.name] = command_class
+
+    def load_commands_from_module(self, module: ModuleType):
+        for name, command_class in inspect.getmembers(module, lambda x: type(x) is Command):
+            self.load_command(command_class)
+
+    def load_commands_from_namespace(self, namespace: ModuleType):
+        for module_info in pkgutil.iter_modules(namespace.__path__):
+            imported_module = importlib.import_module(f"{namespace.__name__}.{module_info.name}")
+            self.load_commands_from_module(imported_module)
+
+
+CommandType = Callable[[CommandEnv, list[str]], None]
 
 
 class Command:
