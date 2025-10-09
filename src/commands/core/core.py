@@ -25,16 +25,18 @@ class TableRow(NamedTuple):
     name="ls",
     description="list all files in directory",
     help="""
+        path - path to list files in
+
         -l - list files in table format
     """
 )
-def ls(env: CommandEnv, args: list[str]) -> None:
+def cmd_ls(env: CommandEnv, args: list[str]) -> None:
     parser = ArgumentParser(exit_on_error=False)
-    parser.add_argument('dir', nargs='?', default=env.cwd)
+    parser.add_argument('path', nargs='?', default=env.cwd)
     parser.add_argument('-l', action='store_true')
     argv = parser.parse_args(args)
 
-    dir_path = env.get_path(argv.dir)
+    dir_path = env.get_path(argv.path)
 
     if not os.path.isdir(dir_path):
         raise FileNotFoundError(f"No such file or dir {pretty_path(dir_path)}")
@@ -71,14 +73,17 @@ def ls(env: CommandEnv, args: list[str]) -> None:
 
 @command(
     name="cd",
-    description="change current directory"
+    description="change current directory",
+    help="""
+        path - path to change current directory to
+    """
 )
-def cd(env: CommandEnv, args: list[str]) -> None:
+def cmd_cd(env: CommandEnv, args: list[str]) -> None:
     parser = ArgumentParser(exit_on_error=False)
-    parser.add_argument('dir', nargs='?', default='~')
+    parser.add_argument('path', nargs='?', default='~')
     argv = parser.parse_args(args)
 
-    dir_path = env.get_path(argv.dir)
+    dir_path = env.get_path(argv.path)
 
     if not os.path.isdir(dir_path):
         raise FileNotFoundError(f"No such file or dir {pretty_path(dir_path)}")
