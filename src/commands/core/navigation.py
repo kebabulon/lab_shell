@@ -8,8 +8,7 @@ from typing import NamedTuple
 
 from argparse import ArgumentParser
 from src.command import command, CommandEnv
-
-from src.path import pretty_path
+from src.path import pretty_path, validate_path
 
 
 class TableRow(NamedTuple):
@@ -37,9 +36,10 @@ def cmd_ls(env: CommandEnv, args: list[str]) -> None:
     argv = parser.parse_args(args)
 
     dir_path = env.get_path(argv.path)
+    validate_path(dir_path)
 
     if not os.path.isdir(dir_path):
-        raise FileNotFoundError(f"No such file or dir {pretty_path(dir_path)}")
+        raise NotADirectoryError(f"Not a directory {pretty_path(dir_path)}")
 
     if not argv.l:
         env.print(" ".join(os.listdir(dir_path)))
@@ -84,9 +84,10 @@ def cmd_cd(env: CommandEnv, args: list[str]) -> None:
     argv = parser.parse_args(args)
 
     dir_path = env.get_path(argv.path)
+    validate_path(dir_path)
 
     if not os.path.isdir(dir_path):
-        raise FileNotFoundError(f"No such file or dir {pretty_path(dir_path)}")
+        raise NotADirectoryError(f"Not a directory {pretty_path(dir_path)}")
 
     env.cwd = dir_path
 
@@ -104,9 +105,7 @@ def cmd_cat(env: CommandEnv, args: list[str]) -> None:
     argv = parser.parse_args(args)
 
     file_path = env.get_path(argv.file)
-
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"No such file or dir {pretty_path(file_path)}")
+    validate_path(file_path)
 
     if not os.path.isfile(file_path):
         raise FileNotFoundError(f"Not a file {pretty_path(file_path)}")

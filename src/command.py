@@ -27,11 +27,10 @@ class CommandEnv():
     def get_path(self, path: str) -> str:
         path = os.path.expanduser(path)
 
-        if os.path.isabs(path):
-            return path
-        else:
-            new_path = os.path.normpath(os.path.join(self.cwd, path))
-            return new_path
+        if not os.path.isabs(path):
+            path = os.path.normpath(os.path.join(self.cwd, path))
+
+        return path
 
     def print(self, message: str):
         print(message)
