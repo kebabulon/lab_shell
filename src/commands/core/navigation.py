@@ -101,7 +101,7 @@ def cmd_cd(env: CommandEnv, args: list[str]) -> None:
 )
 def cmd_cat(env: CommandEnv, args: list[str]) -> None:
     parser = ArgumentParser(exit_on_error=False)
-    parser.add_argument('file', nargs='?')
+    parser.add_argument('file')
     argv = parser.parse_args(args)
 
     file_path = env.get_path(argv.file)
