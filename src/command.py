@@ -24,11 +24,6 @@ class CommandEnv():
         self.load_commands_from_namespace(core)
         self.load_commands_from_namespace(custom)
 
-    # TODO: move this somewhere else
-    def pretty_path(self, path: str) -> str:
-        path = path.replace(os.path.expanduser('~'), '~', 1)
-        return path
-
     def get_path(self, path: str) -> str:
         path = os.path.expanduser(path)
 

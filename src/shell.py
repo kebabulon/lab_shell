@@ -1,6 +1,7 @@
 import os
 import shlex
 
+from src.path import pretty_path
 from src.command import CommandEnv
 
 
@@ -9,7 +10,7 @@ class Shell():
         self.env = CommandEnv(log_filename=log_filename, cwd=cwd)
 
     def get_prompt(self) -> str:
-        return f"[{self.env.pretty_path(self.env.cwd)}] => "
+        return f"[{pretty_path(self.env.cwd)}] => "
 
     def execute(self, cmd: str) -> None:
         self.env.logger.info(cmd)
