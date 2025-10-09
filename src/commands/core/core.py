@@ -67,3 +67,20 @@ def ls(env: CommandEnv, args: list[str]) -> None:
 
         for row in table:
             env.print(f"{row.permissions} {row.user:<{max_user_len}} {row.group:<{max_group_len}} {row.size:<{max_size_len}} {row.modification_time} {row.name}")
+
+
+@command(
+    name="cd",
+    description="change current directory"
+)
+def cd(env: CommandEnv, args: list[str]) -> None:
+    parser = ArgumentParser(exit_on_error=False)
+    parser.add_argument('dir', nargs='?', default='~')
+    argv = parser.parse_args(args)
+
+    dir_path = env.get_path(argv.dir)
+
+    if not os.path.isdir(dir_path):
+        raise FileNotFoundError(f"No such file or dir {pretty_path(dir_path)}")
+
+    env.cwd = dir_path
