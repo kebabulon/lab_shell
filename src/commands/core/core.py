@@ -89,3 +89,28 @@ def cmd_cd(env: CommandEnv, args: list[str]) -> None:
         raise FileNotFoundError(f"No such file or dir {pretty_path(dir_path)}")
 
     env.cwd = dir_path
+
+
+@command(
+    name="cat",
+    description="print contents of file",
+    help="""
+        file - file to print contents of
+    """
+)
+def cmd_cat(env: CommandEnv, args: list[str]) -> None:
+    parser = ArgumentParser(exit_on_error=False)
+    parser.add_argument('file', nargs='?')
+    argv = parser.parse_args(args)
+
+    file_path = env.get_path(argv.file)
+
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"No such file or dir {pretty_path(file_path)}")
+
+    if not os.path.isfile(file_path):
+        raise FileNotFoundError(f"Not a file {pretty_path(file_path)}")
+
+    with open(file_path, 'r') as f:
+        contents = f.read()
+        env.print(contents)
