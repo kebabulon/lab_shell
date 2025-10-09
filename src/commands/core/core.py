@@ -20,6 +20,9 @@ def ls(env: CommandEnv, args: list[str]) -> None:
 
     dir_path = env.get_path(argv.dir)
 
+    if not os.path.isdir(dir_path):
+        raise FileNotFoundError(f"No such file or dir {dir_path}")
+
     # TODO: check if path is valid before listing
     listdir_itterator = os.listdir(dir_path)
 

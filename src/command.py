@@ -64,11 +64,11 @@ class CommandEnv():
     def log_result(self, message: str):
         self.logger.info(message)
 
-    def log_and_print_error(self, message: str):
-        message = f"Error: {message}"
-        print(message)
+    def log_and_raise_exception(self, exception: Exception):
+        message = f"Error: {str(exception)}"
         self.command_output += message + '\n'
         self.logger.error(message)
+        raise exception
 
     def load_command(self, command_class: Command):
         self.commands[command_class.name] = command_class
