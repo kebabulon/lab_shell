@@ -10,7 +10,7 @@ import importlib
 from collections.abc import Callable
 from types import ModuleType
 
-from src.commands import core, custom
+from src.commands import core, plugins
 
 
 class CommandEnv():
@@ -22,7 +22,7 @@ class CommandEnv():
         self.setup_logger(log_filename)
 
         self.load_commands_from_namespace(core)
-        self.load_commands_from_namespace(custom)
+        self.load_commands_from_namespace(plugins)
 
     def get_path(self, path: str) -> str:
         path = os.path.expanduser(path)
