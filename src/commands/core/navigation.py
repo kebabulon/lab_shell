@@ -8,7 +8,7 @@ from typing import NamedTuple
 
 from argparse import ArgumentParser
 from src.command import command, CommandEnv
-from src.path import pretty_path, validate_path
+from src.path import validate_path
 
 
 class TableRow(NamedTuple):
@@ -39,7 +39,7 @@ def cmd_ls(env: CommandEnv, args: list[str]) -> None:
     validate_path(dir_path)
 
     if not os.path.isdir(dir_path):
-        raise NotADirectoryError(f"Not a directory {pretty_path(dir_path)}")
+        raise NotADirectoryError(f"Not a directory {dir_path}")
 
     if not argv.l:
         env.print(" ".join(os.listdir(dir_path)))
@@ -70,6 +70,8 @@ def cmd_ls(env: CommandEnv, args: list[str]) -> None:
         for row in table:
             env.print(f"{row.permissions} {row.user:<{max_user_len}} {row.group:<{max_group_len}} {row.size:<{max_size_len}} {row.modification_time} {row.name}")
 
+    env.log_success()
+
 
 @command(
     name="cd",
@@ -87,9 +89,11 @@ def cmd_cd(env: CommandEnv, args: list[str]) -> None:
     validate_path(dir_path)
 
     if not os.path.isdir(dir_path):
-        raise NotADirectoryError(f"Not a directory {pretty_path(dir_path)}")
+        raise NotADirectoryError(f"Not a directory {dir_path}")
 
     env.cwd = dir_path
+
+    env.log_success()
 
 
 @command(
@@ -108,8 +112,10 @@ def cmd_cat(env: CommandEnv, args: list[str]) -> None:
     validate_path(file_path)
 
     if not os.path.isfile(file_path):
-        raise FileNotFoundError(f"Not a file {pretty_path(file_path)}")
+        raise FileNotFoundError(f"Not a file {file_path}")
 
     with open(file_path, 'r') as f:
         contents = f.read()
         env.print(contents)
+
+    env.log_success()

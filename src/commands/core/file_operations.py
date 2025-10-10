@@ -1,4 +1,4 @@
-# import os
+import os
 import shutil
 
 from argparse import ArgumentParser
@@ -25,9 +25,13 @@ def cmd_mv(env: CommandEnv, args: list[str]) -> None:
 
     dest_path = env.get_path(argv.dest)
 
+    log_dest_path = dest_path
+    if os.path.isdir(dest_path):
+        log_dest_path = os.path.join(dest_path, os.path.basename(source_path))
+
     try:
         shutil.move(source_path, dest_path)
     except PermissionError:
         raise PermissionError("No permission")
 
-    # TODO: log here
+    env.log_success(f"Successfully moved {source_path} to {log_dest_path}")

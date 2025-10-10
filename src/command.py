@@ -28,9 +28,9 @@ class CommandEnv():
         path = os.path.expanduser(path)
 
         if not os.path.isabs(path):
-            path = os.path.normpath(os.path.join(self.cwd, path))
+            path = os.path.join(self.cwd, path)
 
-        return path
+        return os.path.normpath(path)
 
     def print(self, message: str):
         print(message)
@@ -55,7 +55,7 @@ class CommandEnv():
 
             self.logger.addHandler(file_handler)
 
-    def log_result(self, message: str):
+    def log_success(self, message: str = "Success"):
         self.logger.info(message)
 
     def log_and_raise_exception(self, exception: Exception):
