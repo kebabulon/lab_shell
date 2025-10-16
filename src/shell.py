@@ -3,6 +3,7 @@ import shlex
 
 from src.path import pretty_path
 from src.command import CommandEnv
+from src.constants import DEBUG
 
 
 class Shell():
@@ -39,6 +40,8 @@ class Shell():
                 try:
                     self.execute(cmd)
                 except Exception as e:
+                    if DEBUG:
+                        raise e
                     print(f"Error: {str(e)}")
                 except KeyboardInterrupt:
                     continue
