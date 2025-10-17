@@ -2,6 +2,8 @@ import os
 
 DEBUG = True
 
+GREP_MATCH_PADDING = 25
+
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 TRASH_DIR = os.path.join(ROOT_DIR, ".trash")
