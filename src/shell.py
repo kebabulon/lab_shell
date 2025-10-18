@@ -40,6 +40,10 @@ class Shell():
         try:
             while True:
                 cmd = input(self.get_prompt())
+
+                if cmd == "exit":
+                    break
+
                 try:
                     self.execute(cmd)
                 except Exception as e:
