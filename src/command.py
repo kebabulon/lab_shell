@@ -32,7 +32,7 @@ class CommandEnv():
 
         return os.path.normpath(path)
 
-    def print(self, message: str):
+    def print(self, message: str = ""):
         print(message)
         self.command_output += message + '\n'
 

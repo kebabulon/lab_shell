@@ -44,7 +44,7 @@ def find_patterns_in_file(pattern: str, file: str, ignore_case: bool) -> str:
     name="grep",
     description="find lines matching pattern in files",
     help="""
-        pattern - re pattern used for searching
+        pattern - regex pattern used for searching
         path - file/directory to search in
 
         -r - recursively search contents of directory
