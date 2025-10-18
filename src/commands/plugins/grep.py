@@ -19,8 +19,8 @@ def find_patterns_in_file(pattern: str, file: str, ignore_case: bool) -> str:
 
     try:
         with open(file, 'r') as f:
-            line_count += 1
             for line in f:
+                line_count += 1
                 line = line.rstrip('\n')
                 for match in re.finditer(pattern, line, flag):
                     left_pad = line[max(0, match.start(0) - GREP_MATCH_PADDING):match.start(0)]
