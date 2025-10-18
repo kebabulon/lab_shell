@@ -4,6 +4,7 @@ import shlex
 from src.path import pretty_path
 from src.command import CommandEnv
 from src.constants import DEBUG
+from src.constants import COMMAND_HISTORY_PATH
 
 
 class Shell():
@@ -15,6 +16,8 @@ class Shell():
 
     def execute(self, cmd: str) -> None:
         self.env.logger.info(cmd)
+        with open(COMMAND_HISTORY_PATH, 'a') as f:
+            f.write(cmd + '\n')
 
         cmd_args = shlex.split(cmd)
         if not cmd_args:

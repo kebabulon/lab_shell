@@ -75,6 +75,9 @@ def cmd_cp(env: CommandEnv, args: list[str]) -> None:
     if os.path.isdir(dest_path):
         dest_path = os.path.join(dest_path, os.path.basename(source_path))
 
+    if not os.path.exists(TRASH_DIR):
+        os.makedirs(TRASH_DIR, exist_ok=True)
+
     undo_prefix = get_undo_prefix()
     undo_paths: list[str] = [dest_path]
 
@@ -132,6 +135,9 @@ def cmd_mv(env: CommandEnv, args: list[str]) -> None:
     dest_path = env.get_path(argv.dest)
     if os.path.isdir(dest_path):
         dest_path = os.path.join(dest_path, os.path.basename(source_path))
+
+    if not os.path.exists(TRASH_DIR):
+        os.makedirs(TRASH_DIR, exist_ok=True)
 
     undo_prefix = get_undo_prefix()
     undo_paths: list[str] = [source_path, dest_path]
@@ -207,7 +213,7 @@ def cmd_rm(env: CommandEnv, args: list[str]) -> None:
             return
 
     if not os.path.exists(TRASH_DIR):
-        os.mkdir(TRASH_DIR)
+        os.makedirs(TRASH_DIR, exist_ok=True)
 
     undo_prefix = get_undo_prefix()
 
