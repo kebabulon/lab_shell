@@ -10,6 +10,16 @@ from src.constants import TRASH_DIR
 from src.constants import UNDO_HISTORY_PATH
 
 
+def safety_check_root(source: str) -> None:
+    if os.path.splitroot(source)[2] == '':
+        raise PermissionError("Unable to operate with root directory")
+
+
+def safety_check_parent_directory(source: str, dest: str) -> None:
+    if source in dest:
+        raise PermissionError("Unable to operate with parent directory")
+
+
 def get_next_undo_count() -> int:
     if not os.path.exists(UNDO_HISTORY_PATH):
         return 1
@@ -70,10 +80,13 @@ def cmd_cp(env: CommandEnv, args: list[str]) -> None:
 
     source_path = env.get_path(argv.source)
     validate_path(source_path)
+    safety_check_root(source_path)
 
     dest_path = env.get_path(argv.dest)
     if os.path.isdir(dest_path):
         dest_path = os.path.join(dest_path, os.path.basename(source_path))
+
+    safety_check_parent_directory(source_path, dest_path)
 
     if not os.path.exists(TRASH_DIR):
         os.makedirs(TRASH_DIR, exist_ok=True)
@@ -131,10 +144,14 @@ def cmd_mv(env: CommandEnv, args: list[str]) -> None:
 
     source_path = env.get_path(argv.source)
     validate_path(source_path)
+    safety_check_root(source_path)
+    safety_check_parent_directory(source_path, env.cwd)
 
     dest_path = env.get_path(argv.dest)
     if os.path.isdir(dest_path):
         dest_path = os.path.join(dest_path, os.path.basename(source_path))
+
+    safety_check_parent_directory(source_path, dest_path)
 
     if not os.path.exists(TRASH_DIR):
         os.makedirs(TRASH_DIR, exist_ok=True)
@@ -157,7 +174,10 @@ def cmd_mv(env: CommandEnv, args: list[str]) -> None:
 
                 shutil.copy2(dest_path, ovewritten_trash_path)
 
-            shutil.move(source_path, dest_path)
+                shutil.copy2(source_path, dest_path)
+                os.remove(source_path)
+            else:
+                os.rename(source_path, dest_path)
         except PermissionError:
             raise PermissionError("No permission")
         except FileExistsError:
@@ -165,7 +185,12 @@ def cmd_mv(env: CommandEnv, args: list[str]) -> None:
 
     if os.path.isdir(source_path):
         try:
-            shutil.move(source_path, dest_path, copy_and_trash_overwritten)
+            if not os.path.exists(dest_path):
+                shutil.move(source_path, dest_path)
+            else:
+                #  dont use shutil.move because it cant overwrite, which is different compared to GNU's mv behaviour
+                shutil.copytree(source_path, dest_path, dirs_exist_ok=True, copy_function=copy_and_trash_overwritten)
+                shutil.rmtree(source_path)
         except PermissionError:
             raise PermissionError("No permission")
         except FileExistsError:
@@ -195,17 +220,14 @@ def cmd_rm(env: CommandEnv, args: list[str]) -> None:
 
     source_path = env.get_path(argv.source)
     validate_path(source_path)
-
-    if os.path.splitroot(source_path)[2] == '':
-        raise PermissionError("Unable to trash root directory")
-    if source_path in env.cwd:
-        raise PermissionError("Unable to trash parent directory")
+    safety_check_root(source_path)
+    safety_check_parent_directory(source_path, env.cwd)
 
     if os.path.isdir(source_path):
         if not argv.r:
             raise IsADirectoryError("Unable to trash directory without '-r' flag present")
 
-        while (confirm_prompt := input("Are you sure you want to trash directory? [y/n] ")) not in ["y", "n"]:
+        while (confirm_prompt := input(f"Are you sure you want to trash {source_path}? [y/n] ")) not in ["y", "n"]:
             env.print("Invalid response")
 
         if confirm_prompt == "n":
