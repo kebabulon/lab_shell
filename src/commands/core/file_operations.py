@@ -16,7 +16,12 @@ def safety_check_root(source: str) -> None:
 
 
 def safety_check_parent_directory(source: str, dest: str) -> None:
-    if source in dest:
+    if not source.endswith(os.path.sep):
+        source += os.path.sep
+    if not dest.endswith(os.path.sep):
+        dest += os.path.sep
+
+    if dest.startswith(source):
         raise PermissionError("Unable to operate with parent directory")
 
 
@@ -207,7 +212,8 @@ def cmd_mv(env: CommandEnv, args: list[str]) -> None:
     help="""
         source - file/directory to trash
 
-        -r - recursively move the contents of the directory
+        -r - recursively trash the contents of the directory
+        -f - forcibly trash directory without prompting the user
         --test - do not perform trashing, only raise exceptions
     """
 )
@@ -215,6 +221,7 @@ def cmd_rm(env: CommandEnv, args: list[str]) -> None:
     parser = ArgumentParser(exit_on_error=False)
     parser.add_argument('source')
     parser.add_argument('-r', action='store_true')
+    parser.add_argument('-f', action='store_true')
     parser.add_argument('--test', action='store_true')
     argv = parser.parse_args(args)
 
@@ -227,12 +234,13 @@ def cmd_rm(env: CommandEnv, args: list[str]) -> None:
         if not argv.r:
             raise IsADirectoryError("Unable to trash directory without '-r' flag present")
 
-        while (confirm_prompt := input(f"Are you sure you want to trash {source_path}? [y/n] ")) not in ["y", "n"]:
-            env.print("Invalid response")
+        if not argv.f:
+            while (confirm_prompt := input(f"Are you sure you want to trash {source_path}? [y/n] ")) not in ["y", "n"]:
+                env.print("Invalid response")
 
-        if confirm_prompt == "n":
-            env.log_success("User did not confirm prompt. Done nothing")
-            return
+            if confirm_prompt == "n":
+                env.log_success("User did not confirm prompt. Done nothing")
+                return
 
     if not os.path.exists(TRASH_DIR):
         os.makedirs(TRASH_DIR, exist_ok=True)

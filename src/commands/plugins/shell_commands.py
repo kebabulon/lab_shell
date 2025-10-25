@@ -60,6 +60,9 @@ def cmd_undo(env: CommandEnv, args: list[str]) -> None:
                     os.remove(file)
                     remove_directory_if_empty(os.path.dirname(file))
 
+                if os.path.exists(dest_path):
+                    remove_directory_if_empty(dest_path)
+
             overwritten_name = undo_prefix + os.path.basename(dest_path)
             overwritten_path = os.path.join(TRASH_DIR, overwritten_name)
 
@@ -86,6 +89,9 @@ def cmd_undo(env: CommandEnv, args: list[str]) -> None:
 
                         shutil.move(file, source_file_path)
                         remove_directory_if_empty(os.path.dirname(file))
+
+                    if os.path.exists(dest_path):
+                        remove_directory_if_empty(dest_path)
                 else:  # no files_to_move, that means that directory just got renamed
                     shutil.move(dest_path, source_path)
 
