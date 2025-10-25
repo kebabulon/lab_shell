@@ -2,7 +2,8 @@ import pytest
 
 import os
 
-from tests.setup import sandbox_shell, clear_or_create_test_sandbox
+from tests.setup import sandbox_shell
+from tests.setup import clear_or_create_test_sandbox, clear_undo_history
 from tests.setup import create_file, create_dir
 
 from src.path import tree
@@ -10,6 +11,7 @@ from src.constants import TEST_SANDBOX_DIR
 
 
 @pytest.mark.usefixtures("clear_or_create_test_sandbox")
+@pytest.mark.usefixtures("clear_undo_history")
 def test_cp_and_undo(sandbox_shell):
     create_file(os.path.join(TEST_SANDBOX_DIR, 'file1'), "file1\n")
     file2 = create_file(os.path.join(TEST_SANDBOX_DIR, 'file2'), "file2\n")
@@ -75,6 +77,7 @@ def test_cp_and_undo(sandbox_shell):
 
 
 @pytest.mark.usefixtures("clear_or_create_test_sandbox")
+@pytest.mark.usefixtures("clear_undo_history")
 def test_mv_and_undo(sandbox_shell):
     file1 = create_file(os.path.join(TEST_SANDBOX_DIR, 'file1'), "file1\n")
     file2 = create_file(os.path.join(TEST_SANDBOX_DIR, 'file2'), "file2\n")
@@ -152,6 +155,7 @@ def test_mv_and_undo(sandbox_shell):
 
 
 @pytest.mark.usefixtures("clear_or_create_test_sandbox")
+@pytest.mark.usefixtures("clear_undo_history")
 def test_rm_and_undo(sandbox_shell):
     file1 = create_file(os.path.join(TEST_SANDBOX_DIR, 'file1'), "file1\n")
 

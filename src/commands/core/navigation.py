@@ -3,7 +3,7 @@ import stat
 from pwd import getpwuid
 from grp import getgrgid
 
-from datetime import datetime
+import datetime
 from typing import NamedTuple
 
 from argparse import ArgumentParser
@@ -18,6 +18,12 @@ class TableRow(NamedTuple):
     size: str
     modification_time: str
     name: str
+
+
+def local_timezone() -> datetime.tzinfo | None:
+    now = datetime.datetime.now()
+    local_now = now.astimezone()
+    return local_now.tzinfo
 
 
 @command(
@@ -58,7 +64,7 @@ def cmd_ls(env: CommandEnv, args: list[str]) -> None:
                 user=getpwuid(file_stat.st_uid).pw_name,
                 group=getgrgid(file_stat.st_gid).gr_name,
                 size=str(file_stat.st_size),
-                modification_time=datetime.utcfromtimestamp(file_stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S'),
+                modification_time=datetime.datetime.fromtimestamp(file_stat.st_mtime, local_timezone()).strftime('%Y-%m-%d %H:%M:%S'),
                 name=file.name,
             )
             table.append(row)
@@ -114,8 +120,14 @@ def cmd_cat(env: CommandEnv, args: list[str]) -> None:
     if not os.path.isfile(file_path):
         raise FileNotFoundError(f"Not a file {file_path}")
 
-    with open(file_path, 'r') as f:
-        contents = f.read()
-        env.print(contents)
+    try:
+        with open(file_path, 'r') as f:
+            contents = f.read()
+            contents = contents.rstrip('\n')
+            env.print(contents)
+    except UnicodeDecodeError:  # binary file
+        raise ValueError("Not a text file or a non-unicode encoding")
+    except PermissionError:
+        raise PermissionError("No permission")
 
     env.log_success()
