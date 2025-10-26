@@ -6,6 +6,8 @@ from grp import getgrgid
 import datetime
 from typing import NamedTuple
 
+from src.path import tree
+
 from argparse import ArgumentParser
 from src.command import command, CommandEnv
 from src.path import validate_path
@@ -129,5 +131,30 @@ def cmd_cat(env: CommandEnv, args: list[str]) -> None:
         raise ValueError("Not a text file or a non-unicode encoding")
     except PermissionError:
         raise PermissionError("No permission")
+
+    env.log_success()
+
+
+@command(
+    name="tree",
+    description="print directory as a sorted tree",
+    help="""
+        path - path to print tree of
+    """
+)
+def cmd_tree(env: CommandEnv, args: list[str]) -> None:
+    parser = ArgumentParser(exit_on_error=False)
+    parser.add_argument('path', nargs='?', default=env.cwd)
+    parser.add_argument('-l', action='store_true')
+    argv = parser.parse_args(args)
+
+    dir_path = env.get_path(argv.path)
+    validate_path(dir_path)
+
+    if not os.path.isdir(dir_path):
+        raise NotADirectoryError(f"Not a directory {dir_path}")
+
+    tree_result = tree(dir_path)
+    env.print(tree_result)
 
     env.log_success()
