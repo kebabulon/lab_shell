@@ -4,13 +4,9 @@ import os
 import logging
 
 import inspect
-import pkgutil
-import importlib
 
 from collections.abc import Callable
 from types import ModuleType
-
-from src.commands import core, plugins
 
 
 class CommandEnv():
@@ -21,9 +17,6 @@ class CommandEnv():
 
         self.setup_logger(log_filename)
 
-        self.load_commands_from_namespace(core)
-        self.load_commands_from_namespace(plugins)
-
     def get_path(self, path: str) -> str:
         path = os.path.expanduser(path)
 
@@ -32,11 +25,11 @@ class CommandEnv():
 
         return os.path.normpath(path)
 
-    def print(self, message: str = ""):
+    def print(self, message: str = "") -> None:
         print(message)
         self.command_output += message + '\n'
 
-    def setup_logger(self, log_filename: str):
+    def setup_logger(self, log_filename: str) -> None:
         self.logger = logging.getLogger(log_filename)
         self.logger.setLevel(logging.INFO)
 
@@ -55,26 +48,21 @@ class CommandEnv():
 
             self.logger.addHandler(file_handler)
 
-    def log_success(self, message: str = "Success"):
+    def log_success(self, message: str = "Success") -> None:
         self.logger.info(message)
 
-    def log_and_raise_exception(self, exception: Exception):
+    def log_and_raise_exception(self, exception: Exception) -> None:
         message = f"Error: {str(exception)}"
         self.command_output += message + '\n'
         self.logger.error(message)
         raise exception
 
-    def load_command(self, command_class: Command):
+    def load_command(self, command_class: Command) -> None:
         self.commands[command_class.name] = command_class
 
-    def load_commands_from_module(self, module: ModuleType):
+    def load_commands_from_module(self, module: ModuleType) -> None:
         for name, command_class in inspect.getmembers(module, lambda x: type(x) is Command):
             self.load_command(command_class)
-
-    def load_commands_from_namespace(self, namespace: ModuleType):
-        for module_info in pkgutil.iter_modules(namespace.__path__):
-            imported_module = importlib.import_module(f"{namespace.__name__}.{module_info.name}")
-            self.load_commands_from_module(imported_module)
 
 
 CommandType = Callable[[CommandEnv, list[str]], None]

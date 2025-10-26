@@ -6,13 +6,30 @@ from src.command import CommandEnv
 from src.constants import DEBUG
 from src.constants import COMMAND_HISTORY_PATH
 
+from src.commands.core import file_operations
+from src.commands.core import navigation
+
+from src.commands.plugins import archive
+from src.commands.plugins import grep
+from src.commands.plugins import shell_commands
+
 
 class Shell():
     def __init__(self, log_filename="shell", cwd=os.getcwd()):
-        self.env = CommandEnv(log_filename=log_filename, cwd=cwd)
+        self.env = self.load_env(CommandEnv(log_filename=log_filename, cwd=cwd))
 
     def get_prompt(self) -> str:
         return f"[{pretty_path(self.env.cwd)}] => "
+
+    def load_env(self, env: CommandEnv) -> CommandEnv:
+        env.load_commands_from_module(file_operations)
+        env.load_commands_from_module(navigation)
+
+        env.load_commands_from_module(archive)
+        env.load_commands_from_module(grep)
+        env.load_commands_from_module(shell_commands)
+
+        return env
 
     def execute(self, cmd: str) -> None:
         self.env.logger.info(cmd)
