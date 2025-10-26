@@ -47,12 +47,14 @@ def prettify_filename(filename: str) -> str:
         path - path to list files in
 
         -l - list files in table format
+        -a - show hidden files
     """
 )
 def cmd_ls(env: CommandEnv, args: list[str]) -> None:
     parser = ArgumentParser(exit_on_error=False)
     parser.add_argument('path', nargs='?', default=env.cwd)
     parser.add_argument('-l', action='store_true')
+    parser.add_argument('-a', action='store_true')
     argv = parser.parse_args(args)
 
     dir_path = env.get_path(argv.path)
@@ -62,7 +64,7 @@ def cmd_ls(env: CommandEnv, args: list[str]) -> None:
         raise NotADirectoryError(f"Not a directory {dir_path}")
 
     if not argv.l:
-        env.print(" ".join([prettify_filename(file) for file in os.listdir(dir_path) if not is_hidden(file)]))
+        env.print(" ".join([prettify_filename(file) for file in os.listdir(dir_path) if not is_hidden(file) or argv.a]))
     else:
         table: list[TableRow] = []
 
@@ -71,7 +73,7 @@ def cmd_ls(env: CommandEnv, args: list[str]) -> None:
         max_size_len = 0
 
         for file in os.scandir(dir_path):
-            if is_hidden(file.name):
+            if is_hidden(file.name) and not argv.a:
                 continue
 
             file_stat = file.stat(follow_symlinks=True)

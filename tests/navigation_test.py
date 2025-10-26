@@ -13,6 +13,8 @@ from src.constants import TEST_SANDBOX_DIR
 @pytest.mark.usefixtures("clear_or_create_test_sandbox")
 def test_ls(sandbox_shell):
     create_file(os.path.join(TEST_SANDBOX_DIR, 'file1'), "file1\n")
+    create_file(os.path.join(TEST_SANDBOX_DIR, '.hidden'), "hidden\n")
+    create_file(os.path.join(TEST_SANDBOX_DIR, 'file with spaces'), "hidden\n")
 
     dir = create_dir(os.path.join(TEST_SANDBOX_DIR, 'dir'))
     create_file(os.path.join(dir, 'file1'), "file1_dir\n")
@@ -28,6 +30,14 @@ def test_ls(sandbox_shell):
     # ls current directory
     result = sandbox_shell.execute("ls")
     assert "file1" in result and "dir" in result
+    # no hidden files displayed by default
+    assert ".hidden" not in result
+    # files with spaces are wrapped in quotes
+    assert '"file with spaces"' in result
+
+    # -a flag
+    result = sandbox_shell.execute("ls -a")
+    assert ".hidden" in result
 
     # ls path
     result = sandbox_shell.execute("ls dir")
