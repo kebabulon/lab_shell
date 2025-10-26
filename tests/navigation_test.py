@@ -89,3 +89,23 @@ def test_cat(sandbox_shell):
     # cat file
     result = sandbox_shell.execute("cat file1")
     assert result == "line1\nline2\n"
+
+
+@pytest.mark.usefixtures("clear_or_create_test_sandbox")
+def test_tree(sandbox_shell):
+    create_file(os.path.join(TEST_SANDBOX_DIR, 'file1'), "file1\n")
+
+    dir = create_dir(os.path.join(TEST_SANDBOX_DIR, 'dir'))
+    create_file(os.path.join(dir, 'file1'), "file1_dir\n")
+    create_file(os.path.join(dir, 'file2'), "file2_dir\n")
+
+    subdir = create_dir(os.path.join(dir, 'subdir'))
+    create_file(os.path.join(subdir, 'file1'), "file1_subdir\n")
+
+    # not a directory
+    with pytest.raises(NotADirectoryError):
+        sandbox_shell.execute("tree file1")
+
+    # tree directory
+    result = sandbox_shell.execute("tree dir")
+    assert "file1" in result and "file2" in result and "subdir" in result
