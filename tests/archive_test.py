@@ -7,7 +7,6 @@ from tests.setup import sandbox_shell
 from tests.setup import clear_or_create_test_sandbox
 from tests.setup import create_file, create_dir
 
-from src.path import tree
 from src.constants import TEST_SANDBOX_DIR
 
 
