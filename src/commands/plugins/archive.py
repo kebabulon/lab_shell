@@ -25,7 +25,7 @@ def archive_command(format: str) -> Command:
             raise NotADirectoryError(f"Not a directory {source_path}")
 
         if not argv.dest:
-            dest_path = source_path
+            dest_path = os.path.join(env.cwd, os.path.basename(source_path))
         else:
             dest_path = env.get_path(argv.dest)
 
@@ -69,13 +69,21 @@ def extract_command(format: str) -> Command:
             raise IsADirectoryError(f"Not a file {source_path}")
 
         try:
-            shutil.unpack_archive(
-                filename=source_path,
-                extract_dir=env.cwd
-            )
+            if format == 'zip':
+                shutil.unpack_archive(
+                    filename=source_path,
+                    extract_dir=env.cwd
+                )
+            elif format == 'tar':
+                shutil.unpack_archive(
+                    filename=source_path,
+                    extract_dir=env.cwd,
+                    filter='data'
+                )
         except PermissionError:
             raise PermissionError("No permission")
-        # TODO: maybe add more exceptions here? shutil.ReadError
+        except shutil.ReadError:
+            raise shutil.ReadError(f"Unable to un{format} {source_path}")
 
     return cmd_extract
 
