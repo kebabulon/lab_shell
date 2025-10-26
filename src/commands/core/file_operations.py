@@ -127,6 +127,8 @@ def cmd_cp(env: CommandEnv, args: list[str]) -> None:
             shutil.copytree(source_path, dest_path, dirs_exist_ok=True, copy_function=copy_and_trash_overwritten)
         except PermissionError:
             raise PermissionError("No permission")
+        except FileExistsError:
+            raise FileExistsError(f"Destination is a file {dest_path}")
 
     add_undo_command('cp', undo_paths)
 
@@ -185,8 +187,6 @@ def cmd_mv(env: CommandEnv, args: list[str]) -> None:
                 os.rename(source_path, dest_path)
         except PermissionError:
             raise PermissionError("No permission")
-        except FileExistsError:
-            raise FileExistsError(f"Destination is a file {dest_path}")
 
     if os.path.isdir(source_path):
         try:

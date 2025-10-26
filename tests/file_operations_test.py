@@ -33,6 +33,10 @@ def test_cp_and_undo(sandbox_shell):
     with pytest.raises(IsADirectoryError):
         sandbox_shell.execute("cp dir dir3")
 
+    #  cannot copy directory into file
+    with pytest.raises(FileExistsError):
+        sandbox_shell.execute("mv dir file1")
+
     #  copy file
     sandbox_shell.execute("cp file1 file3")
     with open(file3, 'r') as f:
@@ -97,6 +101,10 @@ def test_mv_and_undo(sandbox_shell):
 
     dir_move_subdir = os.path.join(dir_move, 'subdir')
     file1_subdir_move = os.path.join(dir_move_subdir, 'file1')
+
+    #  cannot move directory into file
+    with pytest.raises(FileExistsError):
+        sandbox_shell.execute("mv dir file1")
 
     #  move file
     sandbox_shell.execute("mv file1 file3")
