@@ -28,6 +28,12 @@ def local_timezone() -> datetime.tzinfo | None:
     return local_now.tzinfo
 
 
+def is_hidden(path: str) -> bool:
+    if path[0] == '.':
+        return True
+    return False
+
+
 @command(
     name="ls",
     description="list all files in directory",
@@ -50,7 +56,7 @@ def cmd_ls(env: CommandEnv, args: list[str]) -> None:
         raise NotADirectoryError(f"Not a directory {dir_path}")
 
     if not argv.l:
-        env.print(" ".join(os.listdir(dir_path)))
+        env.print(" ".join([file for file in os.listdir(dir_path) if not is_hidden(file)]))
     else:
         table: list[TableRow] = []
 
@@ -59,6 +65,9 @@ def cmd_ls(env: CommandEnv, args: list[str]) -> None:
         max_size_len = 0
 
         for file in os.scandir(dir_path):
+            if is_hidden(file.name):
+                continue
+
             file_stat = file.stat(follow_symlinks=True)
 
             row = TableRow(
