@@ -3,7 +3,7 @@ import pytest
 import os
 import shutil
 
-from src.constants import TEST_SANDBOX_DIR, UNDO_HISTORY_PATH
+from src.constants import TEST_SANDBOX_DIR, UNDO_HISTORY_PATH, COMMAND_HISTORY_PATH
 from src.shell import Shell
 
 
@@ -24,6 +24,12 @@ def clear_or_create_test_sandbox() -> None:
 def clear_undo_history() -> None:
     if os.path.exists(UNDO_HISTORY_PATH):
         os.remove(UNDO_HISTORY_PATH)
+
+
+@pytest.fixture()
+def clear_command_history() -> None:
+    if os.path.exists(COMMAND_HISTORY_PATH):
+        os.remove(COMMAND_HISTORY_PATH)
 
 
 def create_file(file_path: str, contents: str = "") -> str:

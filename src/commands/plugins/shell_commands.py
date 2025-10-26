@@ -32,7 +32,7 @@ def cmd_history(env: CommandEnv, args: list[str]) -> None:
     max_number = len(str(len(lines) - 1))
 
     last_commands = ""
-    for i in range(max(0, len(lines) - argv.n), len(lines) - 1):  # len(lines) - 1 because the last command is history
+    for i in range(max(0, len(lines) - argv.n - 1), len(lines) - 1):  # len(lines) - 1 because the last command is history
         last_commands += f" {i + 1:<{max_number}} {lines[i]}"
     last_commands = last_commands.rstrip('\n')
 
