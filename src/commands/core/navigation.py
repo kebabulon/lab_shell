@@ -28,10 +28,16 @@ def local_timezone() -> datetime.tzinfo | None:
     return local_now.tzinfo
 
 
-def is_hidden(path: str) -> bool:
-    if path[0] == '.':
+def is_hidden(filename: str) -> bool:
+    if filename[0] == '.':
         return True
     return False
+
+
+def prettify_filename(filename: str) -> str:
+    if " " in filename:
+        return f'"{filename}"'
+    return filename
 
 
 @command(
@@ -56,7 +62,7 @@ def cmd_ls(env: CommandEnv, args: list[str]) -> None:
         raise NotADirectoryError(f"Not a directory {dir_path}")
 
     if not argv.l:
-        env.print(" ".join([file for file in os.listdir(dir_path) if not is_hidden(file)]))
+        env.print(" ".join([prettify_filename(file) for file in os.listdir(dir_path) if not is_hidden(file)]))
     else:
         table: list[TableRow] = []
 
@@ -76,7 +82,7 @@ def cmd_ls(env: CommandEnv, args: list[str]) -> None:
                 group=getgrgid(file_stat.st_gid).gr_name,
                 size=str(file_stat.st_size),
                 modification_time=datetime.datetime.fromtimestamp(file_stat.st_mtime, local_timezone()).strftime('%Y-%m-%d %H:%M:%S'),
-                name=file.name,
+                name=prettify_filename(file.name),
             )
             table.append(row)
 
