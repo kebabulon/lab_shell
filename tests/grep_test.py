@@ -17,7 +17,7 @@ def test_grep(sandbox_shell):
 
     subdir = create_dir(os.path.join(dir, 'subdir'))
     create_file(os.path.join(subdir, 'file2'), "c++ goose goose\n")
-    create_file(os.path.join(subdir, 'file3'), "goose\n")
+    create_file(os.path.join(subdir, 'file3'), "goose GOOSE GOOSE\n")
 
     #  no -r flag present
     with pytest.raises(IsADirectoryError):
@@ -38,3 +38,7 @@ def test_grep(sandbox_shell):
     result = sandbox_shell.execute("grep test -r .")
     result = result.rstrip('\n')
     assert result == ''
+
+    # -i flag
+    result = sandbox_shell.execute("grep -i goose -r dir")
+    assert result.count('"goose"') + result.count('"GOOSE"') == 5
