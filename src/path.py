@@ -18,6 +18,12 @@ last =   '└── '
 
 
 def tree(path: str, prefix: str = '') -> str:
+    """
+    Создает дерево файлво в директори
+    :param path: Путь к диркетории
+    :param prefix: Текущия индентация ветки дерева
+    :return: Возвращает дерево директории аналогично команде tree в Linux
+    """
     result = '.\n' if prefix == '' else ''
 
     files = sorted(os.listdir(path))

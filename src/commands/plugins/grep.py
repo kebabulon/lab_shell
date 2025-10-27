@@ -10,6 +10,13 @@ from src.constants import GREP_MATCH_PADDING
 
 
 def find_patterns_in_file(pattern: str, file: str, ignore_case: bool) -> str:
+    """
+    Находит паттерны в файле
+    :param pattern: Паттерн, который нужно найти
+    :param file: Путь к файлу
+    :param ignore_case: Игнорировать регистр или нет
+    :return: Возвращает строчки с названием файла, номером строки и найденым паттерном, обернутым в ковычки
+    """
     found = ""
     line_count = 0
 

@@ -22,6 +22,11 @@ class Shell():
         return f"[{pretty_path(self.env.cwd)}] => "
 
     def load_env(self, env: CommandEnv) -> CommandEnv:
+        """
+        Загружает команды в командное окружение
+        :param env: Командное окружение
+        :return: Командное окружение с командами
+        """
         env.load_commands_from_module(file_operations)
         env.load_commands_from_module(navigation)
 
@@ -31,14 +36,19 @@ class Shell():
 
         return env
 
-    def execute(self, cmd: str) -> None:
+    def execute(self, cmd: str) -> str:
+        """
+        Запускает команду
+        :param cmd: Название команды и агрументы к ней
+        :return: Возвращает результат выполнения команды
+        """
         self.env.logger.info(cmd)
         with open(COMMAND_HISTORY_PATH, 'a') as f:
             f.write(cmd + '\n')
 
         cmd_args = shlex.split(cmd)
         if not cmd_args:
-            return
+            return ""
 
         self.env.command_output = ""
 
@@ -54,6 +64,10 @@ class Shell():
         return self.env.command_output
 
     def run(self) -> None:
+        """
+        Запускает оболочку в интерактивном режиме
+        :return: Данная функция ничего не возвращает
+        """
         try:
             while True:
                 cmd = input(self.get_prompt())

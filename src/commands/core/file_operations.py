@@ -15,7 +15,7 @@ def safety_check_root(source: str) -> None:
         raise PermissionError("Unable to operate with root directory")
 
 
-def safety_check_parent_directory(source: str, dest: str) -> None:
+def safety_check_source_in_dest(source: str, dest: str) -> None:
     if not source.endswith(os.path.sep):
         source += os.path.sep
     if not dest.endswith(os.path.sep):
@@ -47,6 +47,14 @@ def add_undo_command(name: str, args: list[str]) -> None:
 
 
 def copy_and_trash_overwritten_function(undo_prefix: str, dest_path: str, undo_paths: list[str], add_all_paths: bool):
+    """
+    Создает функцию копирования, которая копирует файлы в .trash перед тем, как их перезаписать
+    :param undo_prefix: Преписка к названию файла или директории в .trash, где пишется номер операции, который нужен для undo. Это нужно для того, чтобы имя файла было уникальным, чтобы он не перезаписался
+    :param dest_path: Конечный путь копирования
+    :param undo_paths: Список путей, нужных для восстановления для команды undo
+    :param add_all_paths: Добавлять каждый файл в undo_paths или только те, которые перезаписали
+    :return: Функцию копированию, аналогичной shutil.copy()
+    """
     def _copy_and_trash_overwritten(src: str, dst: str, *, follow_symlinks=True):
         dst_exists = os.path.exists(dst)
 
@@ -72,6 +80,12 @@ def remove_directory_if_empty(path: str) -> None:
 
 
 def move_and_overwrite(source: str, dest: str) -> None:
+    """
+    Двигает файл или директорию и перезаписывает файлы, если они уже существуют
+    :param source: Изначальный путь
+    :param dest: Путь назначения
+    :return: Данная функция ничего не возвращает
+    """
     if os.path.isfile(source):
         shutil.copy2(source, dest)
         os.remove(source)
@@ -106,7 +120,7 @@ def cmd_cp(env: CommandEnv, args: list[str]) -> None:
     if os.path.isdir(dest_path):
         dest_path = os.path.join(dest_path, os.path.basename(source_path))
 
-    safety_check_parent_directory(source_path, dest_path)
+    safety_check_source_in_dest(source_path, dest_path)
 
     if not os.path.exists(TRASH_DIR):
         os.makedirs(TRASH_DIR, exist_ok=True)
@@ -121,7 +135,6 @@ def cmd_cp(env: CommandEnv, args: list[str]) -> None:
         add_all_paths=False  # we don't need to remove files that are going to be overwritten anyway during undo
     )
 
-    # TODO: maybe use copy_and_trash_overwritten for single file copies aswell?
     if os.path.isfile(source_path):
         try:
             if os.path.isfile(dest_path):
@@ -167,13 +180,13 @@ def cmd_mv(env: CommandEnv, args: list[str]) -> None:
     source_path = env.get_path(argv.source)
     validate_path(source_path)
     safety_check_root(source_path)
-    safety_check_parent_directory(source_path, env.cwd)
+    safety_check_source_in_dest(source_path, env.cwd)
 
     dest_path = env.get_path(argv.dest)
     if os.path.isdir(dest_path):
         dest_path = os.path.join(dest_path, os.path.basename(source_path))
 
-    safety_check_parent_directory(source_path, dest_path)
+    safety_check_source_in_dest(source_path, dest_path)
 
     if not os.path.exists(TRASH_DIR):
         os.makedirs(TRASH_DIR, exist_ok=True)
@@ -243,7 +256,7 @@ def cmd_rm(env: CommandEnv, args: list[str]) -> None:
     source_path = env.get_path(argv.source)
     validate_path(source_path)
     safety_check_root(source_path)
-    safety_check_parent_directory(source_path, env.cwd)
+    safety_check_source_in_dest(source_path, env.cwd)
 
     if os.path.isdir(source_path):
         if not argv.r:

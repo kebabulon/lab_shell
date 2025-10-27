@@ -18,6 +18,11 @@ class CommandEnv():
         self.setup_logger(log_filename)
 
     def get_path(self, path: str) -> str:
+        """
+        Переводит релативный путь в абсолютный путь и заменяет "~" на путь к домашней директории пользователя
+        :param path: Путь
+        :return: Возвращает абсолютный путь
+        """
         path = os.path.expanduser(path)
 
         if not os.path.isabs(path):
@@ -30,6 +35,11 @@ class CommandEnv():
         self.command_output += message + '\n'
 
     def setup_logger(self, log_filename: str) -> None:
+        """
+        Создает и настраивает logger
+        :param log_filename: Название лог файла
+        :return: Данная функция ничего не возвращает
+        """
         self.logger = logging.getLogger(log_filename)
         self.logger.setLevel(logging.INFO)
 
