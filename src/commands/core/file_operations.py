@@ -376,3 +376,16 @@ def cmd_undo(env: CommandEnv, args: list[str]) -> None:
 
     with open(UNDO_HISTORY_PATH, 'w') as f:
         f.writelines(lines)
+
+
+@command(
+    name="emptytrash",
+    description="removes trash and clears undo history"
+)
+def cmd_emptytrash(env: CommandEnv, args: list[str]) -> None:
+    if os.path.exists(TRASH_DIR):
+        shutil.rmtree(TRASH_DIR)
+    os.makedirs(TRASH_DIR, exist_ok=True)
+
+    if os.path.exists(UNDO_HISTORY_PATH):
+        os.remove(UNDO_HISTORY_PATH)

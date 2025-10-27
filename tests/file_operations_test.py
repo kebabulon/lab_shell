@@ -8,6 +8,7 @@ from tests.setup import create_file, create_dir
 
 from src.path import tree
 from src.constants import TEST_SANDBOX_DIR
+from src.constants import TRASH_DIR, UNDO_HISTORY_PATH
 
 
 @pytest.mark.usefixtures("clear_or_create_test_sandbox")
@@ -220,3 +221,24 @@ def test_rm_and_undo(sandbox_shell):
     sandbox_shell.execute("undo")
     with open(file1, 'r') as f:
         assert f.read() == "file1\n"
+
+
+@pytest.mark.usefixtures("clear_or_create_test_sandbox")
+@pytest.mark.usefixtures("clear_undo_history")
+def test_emptytrash(sandbox_shell):
+    create_file(os.path.join(TEST_SANDBOX_DIR, 'file1'), "file1\n")
+
+    dir = create_dir(os.path.join(TEST_SANDBOX_DIR, 'dir'))
+    create_file(os.path.join(dir, 'file1'), "file1_dir\n")
+    create_file(os.path.join(dir, 'file2'), "file2_dir\n")
+
+    #  remove file and directory
+    sandbox_shell.execute("rm file1")
+    sandbox_shell.execute("rm -rf dir")
+    assert os.listdir(TRASH_DIR)
+    assert os.path.exists(UNDO_HISTORY_PATH)
+
+    #  empty trash
+    sandbox_shell.execute("emptytrash")
+    assert not os.listdir(TRASH_DIR)
+    assert not os.path.exists(UNDO_HISTORY_PATH)
